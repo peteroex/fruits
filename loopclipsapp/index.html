@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A professional fruit smash game with juicy animations and score tracking">
+  <title>Fruit Smash Frenzy | Juicy Clicking Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    /* Base Styles & Color Variables */
+    :root {
+      /* Fruit Theme Colors */
+      --primary: #FF6B6B;
+      --secondary: #FF9A76;
+      --background: #FFF5E6;
+      --text: #5C3D2E;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --button-bg: #FF6B6B;
+      --button-text: #FFFFFF;
+      --button-hover: #FF5252;
+      --score-color: #FF6B6B;
+      --timer-color: #FF9A76;
+      --juice-1: #FF6B6B;
+      --juice-2: #FFD166;
+      --juice-3: #06D6A0;
+      --juice-4: #FF9A76;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      --border-radius: 16px;
+    }
+
+    /* Dark Mode Colors */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #2D2424;
+        --text: #FFF5E6;
+        --card-bg: rgba(45, 36, 36, 0.9);
+      }
+    }
+
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Fredoka One', cursive;
+      font-weight: 400;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Page Styles */
+    .page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 40px);
+      padding: 20px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    /* Game Header */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      background: var(--card-bg);
+      padding: 10px 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .score-value {
+      color: var(--score-color);
+      font-weight: 700;
+      margin-left: 8px;
+      font-size: 1.2rem;
+    }
+
+    .timer-display {
+      color: var(--timer-color);
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    /* Item Selection */
+    .item-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin: 30px 0;
+      width: 100%;
+    }
+
+    .item-btn {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+      border: 2px solid transparent;
+    }
+
+    .item-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      border-color: var(--primary);
+    }
+
+    .item-btn img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .item-btn:hover img {
+      transform: scale(1.1);
+    }
+
+    .item-btn span {
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Smash Area */
+    .smash-area {
+      width: 100%;
+      max-width: 300px;
+      height: 300px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .smash-item {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .smash-item.smashed {
+      animation: smash 0.6s ease-out forwards;
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+      margin: 10px 0;
+      width: 100%;
+      max-width: 250px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 250px;
+      gap: 10px;
+    }
+
+    /* Instructions */
+    .instructions-content {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 20px;
+    }
+
+    .instructions-content p {
+      margin-bottom: 15px;
+      font-size: 1rem;
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .instructions-content p::before {
+      content: "•";
+      color: var(--primary);
+      font-size: 1.5rem;
+      position: absolute;
+      left: 0;
+      top: -5px;
+    }
+
+    /* Particles */
+    .particles {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Juice Splatter */
+    .juice-splatter {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      opacity: 0.7;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Combo Indicator */
+    .combo-indicator {
+      position: absolute;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      animation: comboPop 0.5s ease-out;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Game Title */
+    .game-title {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .game-subtitle {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    /* Timer Bar */
+    .timer-bar-container {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 154, 118, 0.2);
+      border-radius: 5px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 5px;
+      transition: width 0.1s linear;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes smash {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    @keyframes comboPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+
+    @keyframes juiceDrop {
+      0% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+      50% { transform: translateY(0) scale(1); opacity: 0.8; }
+      100% { transform: translateY(50px) scale(0.5); opacity: 0; }
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .game-title {
+        font-size: 2rem;
+      }
+
+      .item-btns {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .smash-area {
+        height: 250px;
+        max-width: 250px;
+      }
+
+      .smash-item {
+        width: 100px;
+        height: 100px;
+      }
+
+      .game-header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .score-display {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .item-btns {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .item-btn img {
+        width: 50px;
+        height: 50px;
+      }
+
+      .btn {
+        padding: 10px 20px;
+      }
+
+      .game-title {
+        font-size: 1.8rem;
+      }
+
+      .game-subtitle {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Fruit Background Elements */
+    .fruit-bg {
+      position: fixed;
+      opacity: 0.1;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Theme Switcher */
+    .theme-switcher {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .theme-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .theme-btn.default {
+      background: linear-gradient(135deg, #FF6B6B, #FF9A76);
+    }
+
+    .theme-btn.berry {
+      background: linear-gradient(135deg, #9C27B0, #E91E63);
+    }
+
+    .theme-btn.citrus {
+      background: linear-gradient(135deg, #FFC107, #FF9800);
+    }
+
+    .theme-btn.tropical {
+      background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    }
+  </style>
+</head>
+<body>
+  <!-- Fruit Background Elements -->
+  <img src="https://cdn-icons-png.flaticon.com/512/415/415733.png" class="fruit-bg" style="top: 10%; left: 5%; width: 100px; transform: rotate(15deg);">
+  <img src="https://cdn-icons-png.flaticon.com/512/415/415682.png" class="fruit-bg" style="top: 70%; left: 80%; width: 120px; transform: rotate(-20deg);">
+  <img src="https://cdn-icons-png.flaticon.com/512/2909/2909761.png" class="fruit-bg" style="top: 20%; left: 85%; width: 80px; transform: rotate(30deg);">
+  <img src="https://cdn-icons-png.flaticon.com/512/3127/3127031.png" class="fruit-bg" style="top: 80%; left: 10%; width: 90px; transform: rotate(-10deg);">
+
+  <div class="container">
+    <!-- Game Page -->
+    <div id="gamePage" class="page active">
+      <h1 class="game-title">Fruit Smash Frenzy</h1>
+      <p class="game-subtitle">Select a fruit to smash and test your clicking speed!</p>
+      
+      <div class="item-btns">
+        <div class="item-btn" onclick="selectItem('watermelon')">
+          <img src="https://cdn-icons-png.flaticon.com/512/415/415733.png" alt="Watermelon">
+          <span>Watermelon</span>
+        </div>
+        <div class="item-btn" onclick="selectItem('apple')">
+          <img src="https://cdn-icons-png.flaticon.com/512/415/415682.png" alt="Apple">
+          <span>Apple</span>
+        </div>
+        <div class="item-btn" onclick="selectItem('strawberry')">
+          <img src="https://cdn-icons-png.flaticon.com/512/2909/2909761.png" alt="Strawberry">
+          <span>Strawberry</span>
+        </div>
+        <div class="item-btn" onclick="selectItem('orange')">
+          <img src="https://cdn-icons-png.flaticon.com/512/3081/3081847.png" alt="Orange">
+          <span>Orange</span>
+        </div>
+        <div class="item-btn" onclick="selectItem('banana')">
+          <img src="https://cdn-icons-png.flaticon.com/512/2909/2909768.png" alt="Banana">
+          <span>Banana</span>
+        </div>
+        <div class="item-btn" onclick="selectItem('pineapple')">
+          <img src="https://cdn-icons-png.flaticon.com/512/1144/1144767.png" alt="Pineapple">
+          <span>Pineapple</span>
+        </div>
+      </div>
+      
+      <button class="btn" onclick="showInstructions()">How to Play</button>
+    </div>
+
+    <!-- Smash Page -->
+    <div id="smashPage" class="page">
+      <div class="game-header">
+        <div class="score-display">
+          <span>Score:</span>
+          <span id="scoreCount" class="score-value">0</span>
+        </div>
+        <div class="score-display">
+          <span>High Score:</span>
+          <span id="highScoreCount" class="score-value">0</span>
+        </div>
+      </div>
+
+      <div class="timer-bar-container">
+        <div id="timerBar" class="timer-bar"></div>
+      </div>
+      
+      <h2>Smash It!</h2>
+      <div class="smash-area">
+        <img id="smashItem" class="smash-item" src="" alt="Fruit to smash" onclick="smash(event)">
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="goBack()">Change Fruit</button>
+        <button class="btn" onclick="resetGame()">Reset Game</button>
+      </div>
+    </div>
+
+    <!-- Instructions Page -->
+    <div id="instructionsPage" class="page">
+      <h2 class="game-title">How to Play</h2>
+      <div class="instructions-content">
+        <p><strong>1.</strong> Select a fruit from the main menu</p>
+        <p><strong>2.</strong> Click on the fruit as fast as you can to smash it</p>
+        <p><strong>3.</strong> Each smash earns you points - faster clicks get more points!</p>
+        <p><strong>4.</strong> Try to beat your high score before time runs out</p>
+        <p><strong>5.</strong> Change fruits anytime to keep the game fresh</p>
+        <p><strong>6.</strong> Build combos by smashing quickly for bonus points!</p>
+      </div>
+      <button class="btn" onclick="hideInstructions()">Got It!</button>
+    </div>
+  </div>
+
+  <!-- Theme Switcher -->
+  <div class="theme-switcher">
+    <div class="theme-btn default" onclick="setTheme('default')" title="Default Theme"></div>
+    <div class="theme-btn berry" onclick="setTheme('berry')" title="Berry Theme"></div>
+    <div class="theme-btn citrus" onclick="setTheme('citrus')" title="Citrus Theme"></div>
+    <div class="theme-btn tropical" onclick="setTheme('tropical')" title="Tropical Theme"></div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const gamePage = document.getElementById('gamePage');
+    const smashPage = document.getElementById('smashPage');
+    const instructionsPage = document.getElementById('instructionsPage');
+    const smashItem = document.getElementById('smashItem');
+    const scoreCount = document.getElementById('scoreCount');
+    const highScoreCount = document.getElementById('highScoreCount');
+    const timerBar = document.getElementById('timerBar');
+
+    // Game Data
+    const itemImages = {
+      watermelon: 'https://cdn-icons-png.flaticon.com/512/415/415733.png',
+      apple: 'https://cdn-icons-png.flaticon.com/512/415/415682.png',
+      strawberry: 'https://cdn-icons-png.flaticon.com/512/2909/2909761.png',
+      orange: 'https://cdn-icons-png.flaticon.com/512/3081/3081847.png',
+      banana: 'https://cdn-icons-png.flaticon.com/512/2909/2909768.png',
+      pineapple: 'https://cdn-icons-png.flaticon.com/512/1144/1144767.png'
+    };
+
+    // Game Variables
+    let score = 0;
+    let highScore = localStorage.getItem('fruitSmashHighScore') || 0;
+    let timeLeft = 30;
+    let gameTimer;
+    let comboCount = 0;
+    let lastClickTime = 0;
+    const comboThreshold = 300; // milliseconds between clicks for combo
+    const basePoints = 1;
+    const comboMultiplier = 0.2;
+
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+      highScoreCount.textContent = highScore;
+    });
+
+    // Game Functions
+    function selectItem(item) {
+      smashItem.src = itemImages[item];
+      smashItem.alt = `${item} to smash`;
+      smashItem.dataset.item = item;
+      smashItem.classList.remove('smashed');
+      gamePage.classList.remove('active');
+      smashPage.classList.add('active');
+      
+      // Reset game state
+      score = 0;
+      scoreCount.textContent = score;
+      timeLeft = 30;
+      comboCount = 0;
+      updateTimerBar();
+      
+      // Start game timer
+      clearInterval(gameTimer);
+      gameTimer = setInterval(updateGameTimer, 1000);
+    }
+
+    function smash(event) {
+      if (smashItem.classList.contains('smashed')) return;
+      
+      // Calculate points based on combo
+      const now = Date.now();
+      const timeSinceLastClick = now - lastClickTime;
+      lastClickTime = now;
+      
+      if (timeSinceLastClick < comboThreshold) {
+        comboCount++;
+        const comboBonus = Math.floor(comboCount * comboMultiplier);
+        const points = basePoints + comboBonus;
+        score += points;
+        showCombo(comboCount, event.clientX, event.clientY, points);
+      } else {
+        comboCount = 0;
+        score += basePoints;
+      }
+      
+      // Update score display
+      scoreCount.textContent = score;
+      
+      // Update high score if needed
+      if (score > highScore) {
+        highScore = score;
+        highScoreCount.textContent = highScore;
+        localStorage.setItem('fruitSmashHighScore', highScore);
+      }
+      
+      // Create juice particles
+      createJuiceParticles(event.clientX, event.clientY, smashItem.dataset.item);
+      
+      // Smash animation
+      smashItem.classList.add('smashed');
+      
+      // Reset item after animation
+      setTimeout(() => {
+        smashItem.classList.remove('smashed');
+      }, 600);
+    }
+
+    function createJuiceParticles(x, y, fruitType) {
+      // Create juice splatter background
+      const splatter = document.createElement('div');
+      splatter.className = 'juice-splatter';
+      
+      // Set different colors based on fruit
+      let juiceColor;
+      switch(fruitType) {
+        case 'watermelon':
+          juiceColor = 'rgba(255, 107, 107, 0.5)';
+          break;
+        case 'apple':
+          juiceColor = 'rgba(255, 71, 87, 0.5)';
+          break;
+        case 'strawberry':
+          juiceColor = 'rgba(255, 99, 132, 0.5)';
+          break;
+        case 'orange':
+          juiceColor = 'rgba(255, 167, 38, 0.5)';
+          break;
+        case 'banana':
+          juiceColor = 'rgba(255, 238, 88, 0.5)';
+          break;
+        case 'pineapple':
+          juiceColor = 'rgba(255, 193, 7, 0.5)';
+          break;
+        default:
+          juiceColor = 'rgba(255, 107, 107, 0.5)';
+      }
+      
+      splatter.style.background = juiceColor;
+      splatter.style.borderRadius = '50%';
+      splatter.style.left = `${x - 50}px`;
+      splatter.style.top = `${y - 50}px`;
+      splatter.style.width = '100px';
+      splatter.style.height = '100px';
+      splatter.style.transform = 'scale(0)';
+      splatter.style.opacity = '0';
+      
+      document.body.appendChild(splatter);
+      
+      // Animate juice splatter
+      splatter.animate([
+        { transform: 'scale(0)', opacity: 0 },
+        { transform: 'scale(1)', opacity: 0.7 },
+        { transform: 'scale(1.2)', opacity: 0 }
+      ], {
+        duration: 800,
+        easing: 'ease-out'
+      });
+      
+      // Remove after animation
+      setTimeout(() => {
+        splatter.remove();
+      }, 800);
+      
+      // Create smaller juice particles
+      const particleCount = 12 + Math.floor(Math.random() * 8);
+      const colors = getJuiceColors(fruitType);
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particles';
+        const size = Math.random() * 15 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.borderRadius = '50%';
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        
+        document.body.appendChild(particle);
+        
+        // Animate particle
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = Math.random() * 5 + 3;
+        const xVelocity = Math.cos(angle) * velocity;
+        const yVelocity = Math.sin(angle) * velocity;
+        
+        let posX = x;
+        let posY = y;
+        let opacity = 1;
+        
+        const animate = () => {
+          posX += xVelocity;
+          posY += yVelocity;
+          opacity -= 0.02;
+          
+          particle.style.left = `${posX}px`;
+          particle.style.top = `${posY}px`;
+          particle.style.opacity = opacity;
+          
+          if (opacity > 0) {
+            requestAnimationFrame(animate);
+          } else {
+            particle.remove();
+          }
+        };
+        
+        requestAnimationFrame(animate);
+      }
+    }
+
+    function getJuiceColors(fruitType) {
+      switch(fruitType) {
+        case 'watermelon':
+          return ['#FF6B6B', '#FF9A76', '#FF5252'];
+        case 'apple':
+          return ['#FF4757', '#FF6B81', '#FF8FA3'];
+        case 'strawberry':
+          return ['#FF6384', '#FF9EB5', '#FD3550'];
+        case 'orange':
+          return ['#FFA502', '#FFB347', '#FF7B25'];
+        case 'banana':
+          return ['#FFEE58', '#FFF176', '#FBC02D'];
+        case 'pineapple':
+          return ['#FFD600', '#FFEE58', '#FFC107'];
+        default:
+          return ['#FF6B6B', '#FF9A76', '#FF5252'];
+      }
+    }
+
+    function showCombo(count, x, y, points) {
+      const comboText = document.createElement('div');
+      comboText.className = 'combo-indicator';
+      
+      if (count >= 5) {
+        comboText.textContent = `${count}x COMBO! +${points}`;
+        comboText.style.color = '#FF5252';
+        comboText.style.fontSize = '2.2rem';
+      } else if (count >= 3) {
+        comboText.textContent = `${count}x COMBO! +${points}`;
+        comboText.style.color = '#FF9A76';
+      } else {
+        comboText.textContent = `+${points}`;
+        comboText.style.color = '#FF6B6B';
+      }
+      
+      comboText.style.left = `${x}px`;
+      comboText.style.top = `${y - 50}px`;
+      
+      document.body.appendChild(comboText);
+      
+      // Remove after animation
+      setTimeout(() => {
+        comboText.remove();
+      }, 1000);
+    }
+
+    function updateGameTimer() {
+      timeLeft--;
+      updateTimerBar();
+      
+      if (timeLeft <= 0) {
+        clearInterval(gameTimer);
+        setTimeout(() => {
+          alert(`Time's up! Your score: ${score}`);
+          resetGame();
+          goBack();
+        }, 500);
+      }
+    }
+
+    function updateTimerBar() {
+      const percentage = (timeLeft / 30) * 100;
+      timerBar.style.width = `${percentage}%`;
+      
+      if (timeLeft < 10) {
+        timerBar.style.background = 'linear-gradient(90deg, #FF5252, #FF6B6B)';
+      } else {
+        timerBar.style.background = 'linear-gradient(90deg, var(--primary), var(--secondary))';
+      }
+    }
+
+    function resetGame() {
+      score = 0;
+      scoreCount.textContent = score;
+      timeLeft = 30;
+      comboCount = 0;
+      updateTimerBar();
+      clearInterval(gameTimer);
+    }
+
+    function goBack() {
+      smashPage.classList.remove('active');
+      gamePage.classList.add('active');
+      clearInterval(gameTimer);
+    }
+
+    function showInstructions() {
+      gamePage.classList.remove('active');
+      instructionsPage.classList.add('active');
+    }
+
+    function hideInstructions() {
+      instructionsPage.classList.remove('active');
+      gamePage.classList.add('active');
+    }
+
+    // Theme Switching
+    function setTheme(theme) {
+      document.documentElement.style.setProperty('--primary', getThemeColor(theme, 'primary'));
+      document.documentElement.style.setProperty('--secondary', getThemeColor(theme, 'secondary'));
+      document.documentElement.style.setProperty('--button-bg', getThemeColor(theme, 'primary'));
+      document.documentElement.style.setProperty('--button-hover', getThemeColor(theme, 'secondary'));
+      document.documentElement.style.setProperty('--score-color', getThemeColor(theme, 'primary'));
+      document.documentElement.style.setProperty('--timer-color', getThemeColor(theme, 'secondary'));
+    }
+
+    function getThemeColor(theme, type) {
+      const themes = {
+        default: {
+          primary: '#FF6B6B',
+          secondary: '#FF9A76'
+        },
+        berry: {
+          primary: '#E91E63',
+          secondary: '#9C27B0'
+        },
+        citrus: {
+          primary: '#FF9800',
+          secondary: '#FFC107'
+        },
+        tropical: {
+          primary: '#4CAF50',
+          secondary: '#8BC34A'
+        }
+      };
+      
+      return themes[theme][type];
+    }
+  </script>
+</body>
+</html>
